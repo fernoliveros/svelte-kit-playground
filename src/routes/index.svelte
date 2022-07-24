@@ -3,7 +3,9 @@
 </script>
 
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	import Counter from "$lib/Counter.svelte";
+
+	const env = import.meta.env.VITE_TEST_VAR;
 </script>
 
 <svelte:head>
@@ -19,14 +21,7 @@
 				<img src="svelte-welcome.png" alt="Welcome" />
 			</picture>
 		</span>
-
-		to your new<br />SvelteKit app
 	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
 	<Counter />
 </section>
 
