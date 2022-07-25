@@ -4,8 +4,6 @@
 
 <script lang="ts">
 	import Counter from "$lib/Counter.svelte";
-
-	const env = import.meta.env.VITE_TEST_VAR;
 </script>
 
 <svelte:head>

@@ -2,9 +2,9 @@
 import { MongoClient } from 'mongodb';
 import 'dotenv/config'
 
-const MONGO_HOST = process.env.MONGODB_URI
-const MONGO_USER = process.env.MONGODB_USER
-const MONGO_PW = encodeURIComponent(process.env.MONGODB_PW)
+const MONGO_HOST = process.env.MONGO_HOST
+const MONGO_USER = process.env.MONGO_USER
+const MONGO_PW = encodeURIComponent(process.env.MONGO_PW)
 
 export const MONGODB_URI = `mongodb://${MONGO_USER}:${MONGO_PW}@${MONGO_HOST}`
 export const MONGODB_DB = 'svern'

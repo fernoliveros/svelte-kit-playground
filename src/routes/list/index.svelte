@@ -57,14 +57,12 @@
 
     async function handleDeleteItem(e: any, itemId: string) {
         try {
-            e.target.disabled = true;
             await fetch("/list", {
                 method: "DELETE",
                 body: JSON.stringify({ itemId }),
             });
             await invalidate("/list");
         } catch (err) {
-            e.target.disabled = false;
             console.error(err);
         }
     }
@@ -113,7 +111,6 @@
                 on:click={(e) => handleDeleteItem(e, todo._id)}
                 class="delete"
                 aria-label="Delete todo"
-                disabled={false}
             />
         </div>
     {/each}
