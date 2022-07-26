@@ -1,31 +1,23 @@
 // @ts-nocheck
-import { MongoClient } from 'mongodb';
+import { createClient } from 'redis';
 import 'dotenv/config'
 
-const MONGO_HOST = process.env.MONGO_HOST
-const MONGO_USER = process.env.MONGO_USER
-const MONGO_PW = encodeURIComponent(process.env.MONGO_PW)
+const REDIS_HOST = process.env.REDIS_HOST
+// const REDIS_USER = process.env.REDIS_USER
+// const REDIS_PW = encodeURIComponent(process.env.REDIS_PW)
 
-export const MONGODB_URI = `mongodb://${MONGO_USER}:${MONGO_PW}@${MONGO_HOST}`
-export const MONGODB_DB = 'svern'
-
-if (!MONGODB_URI) {
-    throw new Error('Please define the mongoURI property inside config/default.json');
-}
-
-if (!MONGODB_DB) {
-    throw new Error('Please define the mongoDB property inside config/default.json');
-}
+export const REDISDB_URI = `redis://${REDIS_HOST}`
+export const REDISDB_DB = 'svern'
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongo;
+let cached = global.redis;
 
 if (!cached) {
-    cached = global.mongo = { conn: null, promise: null };
+    cached = global.redis = { conn: null, promise: null };
 }
 
 export const connectToDatabase = async () => {
@@ -33,18 +25,8 @@ export const connectToDatabase = async () => {
         return cached.conn;
     }
 
-    if (!cached.promise) {
-        const opts = {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        };
-        cached.promise = MongoClient.connect(MONGODB_URI, opts).then((client) => {
-            return {
-                client,
-                db: client.db(MONGODB_DB)
-            };
-        });
-    }
-    cached.conn = await cached.promise;
-    return cached.conn;
+    const client = createClient();
+    await client.connect();
+    cached.conn = client
+    return client;
 }

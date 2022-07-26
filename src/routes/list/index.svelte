@@ -2,7 +2,7 @@
     import { invalidate } from "$app/navigation";
 
     type Todo = {
-        _id: string;
+        id: string;
         label: string;
         completed: boolean;
     };
@@ -29,7 +29,7 @@
             await fetch("/list", {
                 method: "PATCH",
                 body: JSON.stringify({
-                    itemId: updatedItem._id,
+                    itemId: updatedItem.id,
                     patchObj: labelPatch,
                 }),
             });
@@ -45,7 +45,7 @@
             await fetch("/list", {
                 method: "PATCH",
                 body: JSON.stringify({
-                    itemId: item._id,
+                    itemId: item.id,
                     patchObj: completedPatch,
                 }),
             });
@@ -108,7 +108,7 @@
                 <button class="save" aria-label="Save todo" />
             </form>
             <button
-                on:click={(e) => handleDeleteItem(e, todo._id)}
+                on:click={(e) => handleDeleteItem(e, todo.id)}
                 class="delete"
                 aria-label="Delete todo"
             />
