@@ -2,19 +2,16 @@ version: '3.1'
 
 services:
   svern-app:
-    image: svern
+    image: svern-app
     container_name: svern-app
     restart: always
     ports:
       - 49157:3000
     environment:
-      MONGO_HOST: svern-db
-      MONGO_USER: ${MONGO_USER}
-      MONGO_PW: ${MONGO_PW}
+      REDIS_HOST: svern-db
+      REDIS_PW: ${REDIS_PW}
   svern-db:
-    image: mongo
+    image: redis:bullseye
     container_name: svern-db
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PW}
+    command: redis-server --requirepass ${REDIS_PW}
