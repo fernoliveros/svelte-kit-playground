@@ -3,11 +3,9 @@ import { createClient } from 'redis';
 import 'dotenv/config'
 
 const REDIS_HOST = process.env.REDIS_HOST
-// const REDIS_USER = process.env.REDIS_USER
-// const REDIS_PW = encodeURIComponent(process.env.REDIS_PW)
+const REDIS_PW = encodeURIComponent(process.env.REDIS_PW)
 
-export const REDISDB_URI = `redis://${REDIS_HOST}`
-export const REDISDB_DB = 'svern'
+export const REDIS_URI = `redis://default:${REDIS_PW}@${REDIS_HOST}`
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -25,8 +23,14 @@ export const connectToDatabase = async () => {
         return cached.conn;
     }
 
-    const client = createClient();
-    await client.connect();
-    cached.conn = client
-    return client;
+    const client = createClient({
+        url: REDIS_URI
+    });
+    try {
+        await client.connect();
+        cached.conn = client
+        return client;
+    } catch (err) {
+        return null
+    }
 }

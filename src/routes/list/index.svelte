@@ -23,14 +23,13 @@
         }
     }
 
-    async function handleNewEditItem(updatedItem: Todo) {
-        const labelPatch = { label: updatedItem.label };
+    async function handleNewEditItem(updatedItem: Todo, index: number) {
         try {
             await fetch("/list", {
                 method: "PATCH",
                 body: JSON.stringify({
-                    itemId: updatedItem.id,
-                    patchObj: labelPatch,
+                    item: updatedItem,
+                    index,
                 }),
             });
             await invalidate("/list");
@@ -55,11 +54,11 @@
         }
     }
 
-    async function handleDeleteItem(e: any, itemId: string) {
+    async function handleDeleteItem(item: Todo) {
         try {
             await fetch("/list", {
                 method: "DELETE",
-                body: JSON.stringify({ itemId }),
+                body: JSON.stringify({ item }),
             });
             await invalidate("/list");
         } catch (err) {
@@ -80,7 +79,7 @@
         />
     </form>
 
-    {#each todos as todo}
+    {#each todos as todo, i}
         <div class="todo" class:done={todo.completed}>
             <form on:submit|preventDefault={() => handleCompleteItem(todo)}>
                 <input
@@ -97,7 +96,7 @@
             </form>
             <form
                 class="text"
-                on:submit|preventDefault={() => handleNewEditItem(todo)}
+                on:submit|preventDefault={() => handleNewEditItem(todo, i)}
             >
                 <input
                     aria-label="Edit item"
@@ -108,7 +107,7 @@
                 <button class="save" aria-label="Save todo" />
             </form>
             <button
-                on:click={(e) => handleDeleteItem(e, todo.id)}
+                on:click={(e) => handleDeleteItem(todo)}
                 class="delete"
                 aria-label="Delete todo"
             />

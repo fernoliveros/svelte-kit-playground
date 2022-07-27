@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   svern-app:
-    image: svern
+    image: svern-app
     container_name: svern-app
     restart: always
     ports:
@@ -14,4 +14,4 @@ services:
     image: redis:bullseye
     container_name: svern-db
     restart: always
-    command: redis-server
+    command: redis-server --requirepass asdfghjkl
