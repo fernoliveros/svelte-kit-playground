@@ -9,7 +9,7 @@
     export let newItem = "";
     export let todos: Todo[] = [];
 
-    async function handleNewTodoSubmit() {
+    async function handleNewListItemSubmit() {
         try {
             await fetch("/list", {
                 method: "POST",
@@ -23,14 +23,11 @@
         }
     }
 
-    async function handleNewEditItem(updatedItem: Todo, index: number) {
+    async function handleEditItemLabel(item: Todo, index: number) {
         try {
             await fetch("/list", {
                 method: "PATCH",
-                body: JSON.stringify({
-                    item: updatedItem,
-                    index,
-                }),
+                body: JSON.stringify({ item, index }),
             });
             await invalidate("/list");
         } catch (err) {
@@ -38,15 +35,12 @@
         }
     }
 
-    async function handleCompleteItem(item: Todo) {
-        const completedPatch = { completed: !item.completed };
+    async function handleCompleteItem(item: Todo, index: number) {
+        item.completed = !item.completed;
         try {
             await fetch("/list", {
                 method: "PATCH",
-                body: JSON.stringify({
-                    itemId: item.id,
-                    patchObj: completedPatch,
-                }),
+                body: JSON.stringify({ item, index }),
             });
             await invalidate("/list");
         } catch (err) {
@@ -70,7 +64,7 @@
 <div class="todos">
     <h1>List</h1>
 
-    <form class="new" on:submit|preventDefault={handleNewTodoSubmit}>
+    <form class="new" on:submit|preventDefault={handleNewListItemSubmit}>
         <input
             bind:value={newItem}
             name="newItem"
@@ -81,7 +75,7 @@
 
     {#each todos as todo, i}
         <div class="todo" class:done={todo.completed}>
-            <form on:submit|preventDefault={() => handleCompleteItem(todo)}>
+            <form on:submit|preventDefault={() => handleCompleteItem(todo, i)}>
                 <input
                     type="hidden"
                     name="done"
@@ -96,7 +90,7 @@
             </form>
             <form
                 class="text"
-                on:submit|preventDefault={() => handleNewEditItem(todo, i)}
+                on:submit|preventDefault={() => handleEditItemLabel(todo, i)}
             >
                 <input
                     aria-label="Edit item"
@@ -178,6 +172,7 @@
         flex: 1;
         padding: 0.5em 2em 0.5em 0.8em;
         border-radius: 3px;
+        width: 0px;
     }
 
     .todo button {

@@ -9,9 +9,9 @@ services:
       - 49157:3000
     environment:
       REDIS_HOST: svern-db
-      REDIS_PW: asdfghjkl
+      REDIS_PW: ${REDIS_PW}
   svern-db:
     image: redis:bullseye
     container_name: svern-db
     restart: always
-    command: redis-server --requirepass asdfghjkl
+    command: redis-server --requirepass ${REDIS_PW}
