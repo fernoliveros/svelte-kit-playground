@@ -23,6 +23,7 @@ export const GET = async () => {
 			for (let e of resp) {
 				todos.push(JSON.parse(e))
 			}
+
 			return { body: { todos } }
 		}
 		return { body: { todos: [] } }
@@ -32,14 +33,9 @@ export const GET = async () => {
 
 export const POST = async ({ request }: any) => {
 	const { newItem } = await request.json()
-	const item = {
-		id: crypto.randomUUID(),
-		label: newItem,
-		completed: false
-	}
 	try {
 		const redisClient = await connectToDatabase()
-		const resp = await redisClient.RPUSH(LIST_ITEMS_SET_NAME, JSON.stringify(item), redisCallback)
+		const resp = await redisClient.RPUSH(LIST_ITEMS_SET_NAME, JSON.stringify(newItem), redisCallback)
 		return { body: { item: resp } }
 	}
 	catch (err) { return errRet }

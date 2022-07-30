@@ -1,79 +1,70 @@
 <script lang="ts">
-    import { invalidate } from "$app/navigation";
+    import { list, type ListItem } from "$lib/list.store";
+    import { onMount } from "svelte";
+    import {
+        addListItem,
+        deleteListItem,
+        getFernList,
+        updateListItem,
+    } from "./list.service";
 
-    type Todo = {
-        id: string;
-        label: string;
-        completed: boolean;
+    let newItem = "";
+    let offline = false;
+
+    onMount(() => {
+        getFernList();
+    });
+
+    const handleNewListItemSubmit = () => {
+        addListItem(newItem, offline);
+        newItem = "";
     };
-    export let newItem = "";
-    export let todos: Todo[] = [];
 
-    async function handleNewListItemSubmit() {
-        try {
-            await fetch("/list", {
-                method: "POST",
-                body: JSON.stringify({ newItem }),
-            });
+    const handleDeleteItem = (item: ListItem) => {
+        deleteListItem(item, offline);
+    };
 
-            newItem = "";
-            await invalidate("/list");
-        } catch (err) {
-            console.error(err);
-        }
-    }
+    const handleEditItemLabel = (item: ListItem, index: number) => {
+        updateListItem(item, index, offline);
+    };
 
-    async function handleEditItemLabel(item: Todo, index: number) {
-        try {
-            await fetch("/list", {
-                method: "PATCH",
-                body: JSON.stringify({ item, index }),
-            });
-            await invalidate("/list");
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    async function handleCompleteItem(item: Todo, index: number) {
+    const handleCompleteItem = (item: ListItem, index: number) => {
         item.completed = !item.completed;
-        try {
-            await fetch("/list", {
-                method: "PATCH",
-                body: JSON.stringify({ item, index }),
-            });
-            await invalidate("/list");
-        } catch (err) {
-            console.error(err);
-        }
-    }
+        updateListItem(item, index, offline);
+    };
 
-    async function handleDeleteItem(item: Todo) {
-        try {
-            await fetch("/list", {
-                method: "DELETE",
-                body: JSON.stringify({ item }),
-            });
-            await invalidate("/list");
-        } catch (err) {
-            console.error(err);
+    const toggleOffline = () => {
+        if (offline) {
+            //store in local storage
+        } else {
+            //remove from local storage
         }
-    }
+    };
 </script>
 
 <div class="todos">
-    <h1>List</h1>
+    <div class="list-title">
+        <h1>List</h1>
+        <div class="offline-checkbox">
+            <input
+                type="checkbox"
+                bind:checked={offline}
+                on:change={toggleOffline}
+            />
+            offline
+        </div>
+    </div>
 
     <form class="new" on:submit|preventDefault={handleNewListItemSubmit}>
         <input
             bind:value={newItem}
             name="newItem"
             aria-label="Add item"
-            placeholder="add an item"
+            placeholder="+ add an item"
         />
     </form>
 
-    {#each todos as todo, i}
+    {#each $list as todo, i}
         <div class="todo" class:done={todo.completed}>
             <form on:submit|preventDefault={() => handleCompleteItem(todo, i)}>
                 <input
@@ -110,11 +101,17 @@
 </div>
 
 <style>
+    .offline-checkbox {
+        position: absolute;
+        right: 0;
+        top: 40px;
+    }
     .todos {
         width: 100%;
         max-width: var(--column-width);
         margin: 1rem auto 0 auto;
         line-height: 1;
+        position: relative;
     }
 
     .new {

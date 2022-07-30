@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-	import Counter from "$lib/Counter.svelte";
+	import List from "$lib/list/List.svelte";
 </script>
 
 <svelte:head>
@@ -12,15 +12,7 @@
 </svelte:head>
 
 <section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</span>
-	</h1>
-	<Counter />
+	<List />
 </section>
 
 <style>
