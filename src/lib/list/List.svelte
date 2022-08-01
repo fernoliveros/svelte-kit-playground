@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { list, type ListItem } from "$lib/list.store";
-    import { onMount } from "svelte";
+    import { list, type ListItem } from "$lib/list/list.store";
+    import { onDestroy, onMount } from "svelte";
     import {
         addListItem,
         deleteListItem,
         getFernList,
+        startPollFernList,
+        stopPollFernList,
         updateListItem,
     } from "./list.service";
 
@@ -13,47 +15,34 @@
 
     onMount(() => {
         getFernList();
+        startPollFernList();
+    });
+
+    onDestroy(() => {
+        stopPollFernList();
     });
 
     const handleNewListItemSubmit = () => {
-        addListItem(newItem, offline);
+        addListItem(newItem);
         newItem = "";
     };
 
     const handleDeleteItem = (item: ListItem) => {
-        deleteListItem(item, offline);
+        deleteListItem(item);
     };
 
     const handleEditItemLabel = (item: ListItem, index: number) => {
-        updateListItem(item, index, offline);
+        updateListItem(item, index);
     };
 
     const handleCompleteItem = (item: ListItem, index: number) => {
         item.completed = !item.completed;
-        updateListItem(item, index, offline);
-    };
-
-    const toggleOffline = () => {
-        if (offline) {
-            //store in local storage
-        } else {
-            //remove from local storage
-        }
+        updateListItem(item, index);
     };
 </script>
 
 <div class="todos">
-    <div class="list-title">
-        <h1>List</h1>
-        <div class="offline-checkbox">
-            <input
-                type="checkbox"
-                bind:checked={offline}
-                on:change={toggleOffline}
-            />
-            offline
-        </div>
-    </div>
+    <h1>List</h1>
 
     <form class="new" on:submit|preventDefault={handleNewListItemSubmit}>
         <input
@@ -63,7 +52,6 @@
             placeholder="+ add an item"
         />
     </form>
-
     {#each $list as todo, i}
         <div class="todo" class:done={todo.completed}>
             <form on:submit|preventDefault={() => handleCompleteItem(todo, i)}>
@@ -101,11 +89,6 @@
 </div>
 
 <style>
-    .offline-checkbox {
-        position: absolute;
-        right: 0;
-        top: 40px;
-    }
     .todos {
         width: 100%;
         max-width: var(--column-width);
