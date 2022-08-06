@@ -6,6 +6,7 @@ export type ListItem = {
     id: string;
     label: string;
     completed: boolean;
+    category: string;
 }
 
 export type FernList = ListItem[]

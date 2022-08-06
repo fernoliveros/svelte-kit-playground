@@ -1,25 +1,30 @@
 <script lang="ts">
     import { list, type ListItem } from "$lib/list/list.store";
     import { onDestroy, onMount } from "svelte";
+    import type { Unsubscriber } from "svelte/store";
     import {
         addListItem,
         deleteListItem,
         getFernList,
-        startPollFernList,
-        stopPollFernList,
+        subToFernList,
         updateListItem,
     } from "./list.service";
 
+    export let listName: string = "List";
+    export let categories = false;
+    export let withCheck = true;
     let newItem = "";
-    let offline = false;
+    let fernListUnsub: Unsubscriber;
 
     onMount(() => {
+        fernListUnsub = subToFernList();
         getFernList();
-        startPollFernList();
     });
 
     onDestroy(() => {
-        stopPollFernList();
+        if (fernListUnsub) {
+            fernListUnsub();
+        }
     });
 
     const handleNewListItemSubmit = () => {
@@ -42,7 +47,7 @@
 </script>
 
 <div class="todos">
-    <h1>List</h1>
+    <h1>{listName}</h1>
 
     <form class="new" on:submit|preventDefault={handleNewListItemSubmit}>
         <input
@@ -54,19 +59,23 @@
     </form>
     {#each $list as todo, i}
         <div class="todo" class:done={todo.completed}>
-            <form on:submit|preventDefault={() => handleCompleteItem(todo, i)}>
-                <input
-                    type="hidden"
-                    name="done"
-                    value={todo.completed ? "" : "true"}
-                />
-                <button
-                    class="toggle"
-                    aria-label="Mark todo as {todo.completed
-                        ? 'not done'
-                        : 'done'}"
-                />
-            </form>
+            {#if withCheck}
+                <form
+                    on:submit|preventDefault={() => handleCompleteItem(todo, i)}
+                >
+                    <input
+                        type="hidden"
+                        name="done"
+                        value={todo.completed ? "" : "true"}
+                    />
+                    <button
+                        class="toggle"
+                        aria-label="Mark todo as {todo.completed
+                            ? 'not done'
+                            : 'done'}"
+                    />
+                </form>
+            {/if}
             <form
                 class="text"
                 on:submit|preventDefault={() => handleEditItemLabel(todo, i)}
@@ -122,9 +131,8 @@
     }
 
     .todo {
-        display: grid;
-        grid-template-columns: 2rem 1fr 2rem;
-        grid-gap: 0.5rem;
+        display: flex;
+        gap: 10px;
         align-items: center;
         margin: 0 0 0.5rem 0;
         padding: 0.5rem;

@@ -2,39 +2,46 @@
 import { list, type ListItem } from "$lib/list/list.store";
 import type { Unsubscriber } from "svelte/store";
 
-let intervalId: number
-let listUnsub: Unsubscriber
 let skipFirst = true
 const LIST_NAME = 'fernsList'
 
-export function startPollFernList() {
-    intervalId = window.setInterval(() => {
-        getFernList()
-    }, 10000)
-
-    listUnsub = list.subscribe((list) => {
-        if (!skipFirst) setListInLocalStorage(list)
+export function subToFernList(): Unsubscriber {
+    return list.subscribe((val: ListItem[]) => {
+        if (!skipFirst) {
+            setListInLocalStorage(val)
+            persistList(val)
+        }
         skipFirst = false
     })
 }
 
-export function stopPollFernList() {
-    clearInterval(intervalId)
-
-    if (listUnsub) listUnsub();
+async function persistList(listVal: ListItem[]) {
+    try {
+        const res = await fetch("/list", {
+            method: "POST",
+            body: JSON.stringify(listVal),
+        });
+        if (!res.ok)
+            throw new Error(res.statusText);
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 export async function getFernList() {
-    try {
-        const res = await fetch(`/list`)
-        if (!res.ok)
-            throw new Error(res.statusText);
+    const localList = getListFromLocalStorage()
+    if (localList) { setListStore(localList) }
+    else {
+        try {
+            const res = await fetch(`/list`)
+            if (!res.ok)
+                throw new Error(res.statusText);
 
-        const body = await res.json();
-        setListStore(body.todos)
-    } catch (_) {
-        const localList = getListFromLocalStorage()
-        if (localList) setListStore(localList)
+            const body = await res.json();
+            setListStore(body.list)
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
 
@@ -42,47 +49,18 @@ export async function addListItem(itemLabel: string): Promise<void> {
     const newItem = {
         id: crypto.randomUUID(),
         label: itemLabel,
-        completed: false
+        completed: false,
+        category: ''
     }
     addItemToListStore(newItem)
-    try {
-        const res = await fetch("/list", {
-            method: "POST",
-            body: JSON.stringify({ newItem }),
-        });
-        if (!res.ok)
-            throw new Error(res.statusText);
-    } catch (err) {
-        console.error(err);
-    }
 }
 
 export async function deleteListItem(item: ListItem): Promise<void> {
     removeItemFromListStore(item)
-    try {
-        const res = await fetch("/list", {
-            method: "DELETE",
-            body: JSON.stringify({ item }),
-        });
-        if (!res.ok)
-            throw new Error(res.statusText);
-    } catch (err) {
-        console.error(err);
-    }
 }
 
 export async function updateListItem(item: ListItem, index: number): Promise<void> {
     updateItemInListStore(item)
-    try {
-        const res = await fetch("/list", {
-            method: "PATCH",
-            body: JSON.stringify({ item, index }),
-        });
-        if (!res.ok)
-            throw new Error(res.statusText);
-    } catch (err) {
-        console.error(err);
-    }
 }
 
 function setListStore(newList: ListItem[]): void {
@@ -94,6 +72,7 @@ function addItemToListStore(newItem: ListItem): void {
         oldList.push(newItem);
         return oldList;
     });
+
 }
 
 function removeItemFromListStore(itemToDelete: ListItem): void {

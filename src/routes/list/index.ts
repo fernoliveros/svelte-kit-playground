@@ -14,29 +14,18 @@ const redisCallback = (err: any, _: any) => { if (err) throw err }
 export const GET = async () => {
 	try {
 		const redisClient = await connectToDatabase()
-		let listExists = await redisClient.exists(LIST_ITEMS_SET_NAME, (err: any, _: any) => {
-			if (err) throw err
-		})
-		if (listExists) {
-			const resp = await redisClient.LRANGE(LIST_ITEMS_SET_NAME, 0, -1, redisCallback)
-			const todos = []
-			for (let e of resp) {
-				todos.push(JSON.parse(e))
-			}
-
-			return { body: { todos } }
-		}
-		return { body: { todos: [] } }
+		const list = await redisClient.GET(LIST_ITEMS_SET_NAME, redisCallback)
+		return { body: { list: JSON.parse(list) } }
 	}
 	catch (err) { return errRet }
 };
 
 export const POST = async ({ request }: any) => {
-	const { newItem } = await request.json()
+	const list = await request.json()
 	try {
 		const redisClient = await connectToDatabase()
-		const resp = await redisClient.RPUSH(LIST_ITEMS_SET_NAME, JSON.stringify(newItem), redisCallback)
-		return { body: { item: resp } }
+		const resp = await redisClient.SET(LIST_ITEMS_SET_NAME, JSON.stringify(list), redisCallback)
+		return { body: { list: resp } }
 	}
 	catch (err) { return errRet }
 };
