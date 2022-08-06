@@ -1,4 +1,5 @@
 
+import { browser } from "$app/env";
 import { list, type ListItem } from "$lib/list/list.store";
 import type { Unsubscriber } from "svelte/store";
 
@@ -9,23 +10,9 @@ export function subToFernList(): Unsubscriber {
     return list.subscribe((val: ListItem[]) => {
         if (!skipFirst) {
             setListInLocalStorage(val)
-            persistList(val)
         }
         skipFirst = false
     })
-}
-
-async function persistList(listVal: ListItem[]) {
-    try {
-        const res = await fetch("/list", {
-            method: "POST",
-            body: JSON.stringify(listVal),
-        });
-        if (!res.ok)
-            throw new Error(res.statusText);
-    } catch (err) {
-        console.error(err);
-    }
 }
 
 export async function getFernList() {
@@ -38,10 +25,37 @@ export async function getFernList() {
                 throw new Error(res.statusText);
 
             const body = await res.json();
-            setListStore(body.list)
+            return body.list
         } catch (err) {
             console.error(err);
+            return []
         }
+    }
+}
+
+export async function pushFernList(listVal: ListItem[]) {
+    try {
+        const res = await fetch("/list", {
+            method: "POST",
+            body: JSON.stringify(listVal),
+        });
+        if (!res.ok)
+            throw new Error(res.statusText);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export async function pullFernList() {
+    try {
+        const res = await fetch(`/list`)
+        if (!res.ok)
+            throw new Error(res.statusText);
+
+        const body = await res.json();
+        setListStore(body.list)
+    } catch (err) {
+        console.error(err);
     }
 }
 
@@ -95,13 +109,17 @@ function updateItemInListStore(updatedItem: ListItem): void {
 }
 
 export function getListFromLocalStorage(): ListItem[] | null {
-    const listStr = localStorage.getItem(LIST_NAME)
-    if (listStr) {
-        return JSON.parse(listStr)
+    if (browser) {
+        const listStr = localStorage.getItem(LIST_NAME)
+        if (listStr) {
+            return JSON.parse(listStr)
+        }
     }
     return null
 }
 
 function setListInLocalStorage(list: ListItem[]): void {
-    localStorage.setItem(LIST_NAME, JSON.stringify(list))
+    if (browser) {
+        localStorage.setItem(LIST_NAME, JSON.stringify(list))
+    }
 }

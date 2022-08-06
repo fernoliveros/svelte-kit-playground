@@ -1,11 +1,12 @@
 <script lang="ts">
     import { list, type ListItem } from "$lib/list/list.store";
     import { onDestroy, onMount } from "svelte";
-    import type { Unsubscriber } from "svelte/store";
+    import { get, type Unsubscriber } from "svelte/store";
     import {
         addListItem,
         deleteListItem,
-        getFernList,
+        pullFernList,
+        pushFernList,
         subToFernList,
         updateListItem,
     } from "./list.service";
@@ -18,7 +19,6 @@
 
     onMount(() => {
         fernListUnsub = subToFernList();
-        getFernList();
     });
 
     onDestroy(() => {
@@ -44,10 +44,22 @@
         item.completed = !item.completed;
         updateListItem(item, index);
     };
+
+    function pullListFromDB() {
+        pullFernList();
+    }
+
+    function pushListFromDB() {
+        pushFernList(get(list));
+    }
 </script>
 
 <div class="todos">
     <h1>{listName}</h1>
+    <div class="push-pull">
+        <button on:click={(e) => pullListFromDB()}>Pull</button>
+        <button on:click={(e) => pushListFromDB()}>Push</button>
+    </div>
 
     <form class="new" on:submit|preventDefault={handleNewListItemSubmit}>
         <input
@@ -98,6 +110,10 @@
 </div>
 
 <style>
+    .push-pull {
+        display: flex;
+        justify-content: space-between;
+    }
     .todos {
         width: 100%;
         max-width: var(--column-width);
