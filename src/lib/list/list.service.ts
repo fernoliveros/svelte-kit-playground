@@ -3,21 +3,17 @@ import { browser } from "$app/env";
 import { list, type ListItem } from "$lib/list/list.store";
 import type { Unsubscriber } from "svelte/store";
 
-let skipFirst = true
 const LIST_NAME = 'fernsList'
 
 export function subToFernList(): Unsubscriber {
     return list.subscribe((val: ListItem[]) => {
-        if (!skipFirst) {
-            setListInLocalStorage(val)
-        }
-        skipFirst = false
+        setListInLocalStorage(val)
     })
 }
 
 export async function getFernList() {
     const localList = getListFromLocalStorage()
-    if (localList) { setListStore(localList) }
+    if (localList) { return localList }
     else {
         try {
             const res = await fetch(`/list`)

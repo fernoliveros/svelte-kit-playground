@@ -5,6 +5,7 @@
     import {
         addListItem,
         deleteListItem,
+        getFernList,
         pullFernList,
         pushFernList,
         subToFernList,
@@ -17,7 +18,9 @@
     let newItem = "";
     let fernListUnsub: Unsubscriber;
 
-    onMount(() => {
+    onMount(async () => {
+        const initialList = await getFernList();
+        list.set(initialList);
         fernListUnsub = subToFernList();
     });
 
