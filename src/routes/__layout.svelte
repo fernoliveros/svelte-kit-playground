@@ -4,6 +4,15 @@
 	// export let env = import.meta.env.VITE_ENV;
 
 	import { browser } from "$app/env";
+
+	export let play = false;
+	export let rickRoll: HTMLVideoElement;
+
+	export function roll() {
+		play = true;
+		rickRoll.volume = 1;
+		rickRoll.play();
+	}
 </script>
 
 <!-- <Header />
@@ -18,26 +27,30 @@
 
 <main>
 	{#if browser}
-		<!-- <iframe
-			src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-			frameborder="0"
-			allowfullscreen
-		/> -->
-		<video autoplay>
+		{#if !play}
+			<button on:click={roll}>
+				<img src="play.svg" />
+			</button>
+		{/if}
+		<video bind:this={rickRoll}>
 			<source src="roll.mp4" type="video/mp4" />
 			<source src="roll.ogv" type="video/ogg" />
 			Your browser does not support the video tag.
 		</video>
-		<div class="container">
-			<span class="fact">FACT</span>
-		</div>
-		<img src="face.png" alt="my face" />
+		{#if play}
+			<div class="container">
+				<span class="fact">FACT</span>
+			</div>
+			<img src="face.png" alt="my face" />
+		{/if}
 	{/if}
 </main>
 
 <style>
-	iframe {
-		aspect-ratio: 1.7;
+	button {
+		position: absolute;
+		width: 100vw;
+		height: 100vh;
 	}
 	.container {
 		position: relative;
