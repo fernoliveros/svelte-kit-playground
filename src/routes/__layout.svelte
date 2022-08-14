@@ -2,6 +2,8 @@
 	// import Header from "$lib/header/Header.svelte";
 	// import "../app.css";
 	// export let env = import.meta.env.VITE_ENV;
+
+	import { browser } from "$app/env";
 </script>
 
 <!-- <Header />
@@ -15,14 +17,16 @@
 </footer> -->
 
 <main>
-	<video controls autoplay>
-		<source src="/src/lib/roll/roll.mp4" type="video/mp4" />
-		Your browser does not support the video tag.
-	</video>
-	<div class="container">
-		<span class="fact">FACT</span>
-	</div>
-	<img src="/src/lib/roll/face.png" />
+	{#if browser}
+		<video controls autoplay>
+			<source src="/src/lib/roll/roll.mp4" type="video/mp4" />
+			Your browser does not support the video tag.
+		</video>
+		<div class="container">
+			<span class="fact">FACT</span>
+		</div>
+		<img src="/src/lib/roll/face.png" />
+	{/if}
 </main>
 
 <style>
