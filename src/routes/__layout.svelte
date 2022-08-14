@@ -18,18 +18,27 @@
 
 <main>
 	{#if browser}
-		<video controls autoplay>
-			<source src="/src/lib/roll/roll.mp4" type="video/mp4" />
+		<!-- <iframe
+			src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+			frameborder="0"
+			allowfullscreen
+		/> -->
+		<video autoplay>
+			<source src="roll.mp4" type="video/mp4" />
+			<source src="roll.ogv" type="video/ogg" />
 			Your browser does not support the video tag.
 		</video>
 		<div class="container">
 			<span class="fact">FACT</span>
 		</div>
-		<img src="/src/lib/roll/face.png" />
+		<img src="face.png" alt="my face" />
 	{/if}
 </main>
 
 <style>
+	iframe {
+		aspect-ratio: 1.7;
+	}
 	.container {
 		position: relative;
 		display: flex;
