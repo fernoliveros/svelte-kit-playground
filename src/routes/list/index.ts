@@ -12,12 +12,18 @@ const errRet = {
 const redisCallback = (err: any, _: any) => { if (err) throw err }
 
 export const GET = async () => {
+	console.log('OKOKOK', LIST_ITEMS_SET_NAME)
 	try {
 		const redisClient = await connectToDatabase()
 		const list = await redisClient.GET(LIST_ITEMS_SET_NAME, redisCallback)
+
+		console.log('KOKOKO', list)
 		return { body: { list: JSON.parse(list) } }
 	}
-	catch (err) { return errRet }
+	catch (err) {
+		console.error('what is it?', err)
+		return errRet
+	}
 };
 
 export const POST = async ({ request }: any) => {

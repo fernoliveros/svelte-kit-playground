@@ -10,11 +10,16 @@
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
+<!-- <video src={"src/lib/roll/roll.mp4"} /> -->
+<video controls autoplay>
+	<source src="/src/lib/roll/roll.mp4" type="video/mp4" />
+	Your browser does not support the video tag.
+</video>
 
+<!-- 
 <section>
 	<List />
-</section>
-
+</section> -->
 <style>
 	section {
 		display: flex;

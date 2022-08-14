@@ -43,6 +43,7 @@ export async function pushFernList(listVal: ListItem[]) {
 }
 
 export async function pullFernList() {
+    console.log('lets pull')
     try {
         const res = await fetch(`/list`)
         if (!res.ok)
